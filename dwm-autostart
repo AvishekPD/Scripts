@@ -1,0 +1,23 @@
+#!/bin/bash
+
+##  Set Caps_locks to Escape
+/usr/bin/setxkbmap -option caps:escape
+
+## Applies the wallpaper provided
+feh --bg-fill $HOME/.srcs/dwm/picture.jpg/ &
+
+## Auto starts pipewire and it's sub service
+/usr/bin/pipewire/ &
+/usr/bin/pipewire-pulse/ &
+/usr/bin/pipewire-media-session/ &
+
+## Use this to configure the bar 
+$HOME/.dwm/bar &
+
+# Start picom
+/usr/bin/picom -b --config $HOME/.config/picom/dwm.picom.conf &
+
+## Auto starts tilda in BG
+/usr/bin/tilda &
+
+dwm

@@ -1,0 +1,9 @@
+#!/bin/env bash
+
+for i in *;
+do
+    val=$(echo ${i} | sed 's/\ /-/')
+    mv "${i}" $val
+done
+
+echo "done!"

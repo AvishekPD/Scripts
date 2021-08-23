@@ -1,0 +1,38 @@
+#!/bin/env bash 
+
+# Your device name 
+netdevice="wlp1s0" 
+
+# Modes, available 2 mode, classy and dynamic 
+speed_type=classy
+
+# Speedlimit untill above which to ignore
+minspeed=300
+
+defunc() {
+    read -r sum < /sys/class/net/$netdevice/statistics/$1
+    readonly cache="$HOME/.cache/$1_dnd"
+    [ -f $cache ] && read -r old < "$cache" || old=0 
+    echo $sum > $cache
+    numfmt --to=iec $((sum - old)) 
+}
+
+rx="$(defunc rx_bytes)"
+tx="$(defunc tx_bytes)"
+
+case $speed_type in
+
+classy)
+    if [[ ("$rx" -lt "$minspeed") && ("$tx" -lt "$minspeed") ]]; then 
+        printf "0Bps | 0Bps\n"
+    else
+        printf "%4sBps | %4sBps\n" "$tx" "$rx" 
+    fi ;;
+
+dynamic)
+    if [[ $rx -lt $tx ]]; then 
+        printf "%4sBps" "$tx"
+    else 
+        printf "%4sBps\n" "$rx"
+    fi ;;
+esac
