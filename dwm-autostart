@@ -7,9 +7,9 @@
 feh --bg-fill $HOME/.srcs/dwm/picture.jpg/ &
 
 ## Auto starts pipewire and it's sub service
-/usr/bin/pipewire/ &
-/usr/bin/pipewire-pulse/ &
-/usr/bin/pipewire-media-session/ &
+pipewire &
+pipewire-pulse &
+pipewire-media-session &
 
 ## Use this to configure the bar 
 $HOME/.dwm/bar &

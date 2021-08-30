@@ -4,9 +4,9 @@
 netdevice="wlp1s0" 
 
 # Modes, available 2 mode, classy and dynamic 
-speed_type=classy
+speed_type=dynamic
 
-# Speedlimit untill above which to ignore
+# Speedlimit untill above which to ignore (IN bytes)
 minspeed=300
 
 defunc() {
@@ -31,7 +31,7 @@ classy)
 
 dynamic)
     if [[ $rx -lt $tx ]]; then 
-        printf "%4sBps" "$tx"
+        printf "%4sBps\n" "$tx"
     else 
         printf "%4sBps\n" "$rx"
     fi ;;
