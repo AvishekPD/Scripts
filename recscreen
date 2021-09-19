@@ -11,7 +11,7 @@ FR=24                           # Frame Rate to record in (fps)
 ## No Touchy space from here 
 
 ## Daaaaaaaaaaate 
-whenrec=$(date +"%H:%M_%d-%m-%y")
+whenrec=$(date +"%d-%m-%y_%H-%M_")
 
 ## da magical command, does magick!
 
