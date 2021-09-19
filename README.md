@@ -8,7 +8,7 @@
   </a>
 </p>
 
-> Collection of some scripts I made or scouted ot use
+> Collection of some scripts I made or scouted to use
 
 ## Install
 
