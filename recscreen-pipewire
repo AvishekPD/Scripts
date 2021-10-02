@@ -1,0 +1,46 @@
+#!/bin/env bash
+# --- By Kiriyama ---
+
+## Change as you want 
+
+# Save to this Directory
+RECDIR=~/Videos/Screenrecord
+
+# Audio offset in seconds
+DEOFFSET=1
+
+# Frame Rate to record in (fps)
+FR=30
+
+## No Touchy space from here 
+## Daaaaaaaaaaate 
+whenrec=$(date +"%d-%m-%y_%H-%M")
+
+## da magical command, does magick!
+## making a temp cache file 
+mkdir -p ~/.cache/recscreen
+TEMPDIR=~/.cache/recscreen
+
+pw-record $TEMPDIR/audio.wav & \
+ffmpeg \
+    -f x11grab -framerate $FR -s 1366x768 -i :0.0 \
+    -vcodec libx264 -crf 0 \
+    -preset ultrafast \
+    $TEMPDIR/video.mp4 \
+
+ffmpeg -i $TEMPDIR/video.mp4 -i $TEMPDIR/audio.wav \
+    -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k \
+    $RECDIR/$whenrec.mp4
+
+
+#-vf scale=1280x720:flags=lanczos \ 
+## Adding the delay and Cleaning up....
+# ffmpeg \
+    # -i $TEMPDIR/temp.mp4 \
+    # -itsoffset $DEOFFSET \
+    # -i $TEMPDIR/temp.mp4 \
+    # # -vcodec copy -acodec copy \
+    # -map 0:0 -map 1:1 \
+    # $RECDIR/$whenrec.mp4
+
+rm -rf $TEMPDIR
