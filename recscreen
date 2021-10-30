@@ -1,8 +1,10 @@
 #!/bin/env bash
 # --- By Kiriyama ---
 
-## Change as you want 
-RECDIR=~/Videos/Screenrecord/   # Save to this Directory
+## Change as you want
+whenrec=$(date +"%d-%m-%y_%H-%M_")
+
+RECDIR=~/Videos/Screenrecord/"${whenrec}.mp4"   # Save to this Directory
 
 DEOFFSET=-2.5                   # Audio offset in seconds
 
@@ -11,31 +13,80 @@ FR=24                           # Frame Rate to record in (fps)
 ## No Touchy space from here 
 
 ## Daaaaaaaaaaate 
-whenrec=$(date +"%d-%m-%y_%H-%M_")
+
 
 ## da magical command, does magick!
 
 ## making a temp cache file 
-mkdir -p ~/.cache/recscreen/
-TEMPDIR=~/.cache/recscreen/
+TEMPDIR=~/.cache/recscreen
 
-ffmpeg \
--use_wallclock_as_timestamps 1 \
--f pulse -ac 2 -ar 44100 -i alsa_output.pci-0000_00_1f.3.analog-stereo.monitor \
--f x11grab -r $FR -s 1366x768 -i :0.0 \
--vf scale=1280x720:flags=lanczos \
--vcodec libx264 -preset veryfast \
--acodec libmp3lame -ar 44100 -q:a 1 \
--pix_fmt yuv420p \
-$TEMPDIR/temp.mp4
+record () {
+	ffmpeg \
+		-use_wallclock_as_timestamps 1 \
+		-f pulse -ac 2 -ar 44100 -i alsa_output.pci-0000_00_1f.3.analog-stereo.monitor \
+		-f x11grab -r $FR -s 1366x768 -i :0.0 \
+		-vf scale=1280x720:flags=lanczos \
+		-vcodec libx264 -preset veryfast \
+		-acodec libmp3lame -ar 44100 -q:a 1 \
+		-pix_fmt yuv420p \
+		$TEMPDIR/temp.mp4
+	
+	## Adding the delay and Cleaning up....
+	ffmpeg \
+    	-i $TEMPDIR/temp.mp4 \
+    	-itsoffset $DEOFFSET \
+    	-i $TEMPDIR/temp.mp4 \
+    	-vcodec copy -acodec copy \
+    	-map 0:0 -map 1:1 \
+    	$RECDIR
+		
+	rm -rf $TEMPDIR
+}
 
-## Adding the delay and Cleaning up....
-ffmpeg \
-    -i $TEMPDIR/temp.mp4 \
-    -itsoffset $DEOFFSET \
-    -i $TEMPDIR/temp.mp4 \
-    -vcodec copy -acodec copy \
-    -map 0:0 -map 1:1 \
-    $RECDIR/$whenrec.mp4
+help () {
+	echo "Recscreen by Kiriyama"
+	echo
+	echo "[-h] show help menu"
+	echo "[-o] specify output video name"
+	echo "[-f] specify the number of Frames per Second"
+	echo
+}
 
-rm -rf $TEMPDIR
+main () {
+
+	if [ ! -d ~/.cache/recscreen ] ; then
+		mkdir -p ~/.cache/recscreen
+	fi
+	
+	if [ ! -d ~/Videos/Screenrecord ] ; then
+		mkdir -p ~/Videos/Screenrecord
+	fi
+
+	while getopts ":ho:" options; do
+		case "${options}" in
+			h)
+				help
+				exit 0
+				;;
+			o)
+				RECDIR="${OPTARG}"
+				;;
+			f)
+				FR="${OPTARG}"
+				;;
+			:)
+				echo "Error: -${OPTARG} requires an argument."
+				exit 1
+				;;
+			*)
+				echo "Error: Unknown option -${OPTARG}."
+				exit 1
+				;;
+		esac
+	done
+
+	record
+}
+
+main $@
+
