@@ -4,7 +4,7 @@
 /usr/bin/setxkbmap -option caps:escape
 
 ## Applies the wallpaper provided
-feh --bg-fill $HOME/.srcs/dwm/picture.jpg/ &
+feh --bg-fill $HOME/.srcs/dwm/picture.jpg & 
 
 ## Auto starts pipewire and it's sub service
 pipewire &

@@ -4,7 +4,7 @@
 netdevice="wlan0" 
 
 # Modes, available 2 mode, classy and dynamic 
-speed_type=dynamic
+speed_type=classy
 
 # Speedlimit untill above which to ignore (IN bytes)
 minspeed=300
@@ -23,16 +23,20 @@ tx="$(defunc tx_bytes)"
 case $speed_type in
 
 classy)
-    if [[ ("$rx" -lt "$minspeed") && ("$tx" -lt "$minspeed") ]]; then 
+    if [[ ("$rx" -lt "$minspeed") && ("$tx" -lt "$minspeed") ]]
+    then 
         printf "0Bps | 0Bps\n"
     else
-        printf "%4sBps | %4sBps\n" "$tx" "$rx" 
+        printf "%2sBps | %2sBps\n" "$tx" "$rx" 
     fi ;;
 
 dynamic)
-    if [[ $rx -lt $tx ]]; then 
+    if [[ $rx -lt $tx ]]
+    then 
         printf "%4sBps\n" "$tx"
-    else 
+    elif [[ $rx -lt $tx ]]
+    then
         printf "%4sBps\n" "$rx"
     fi ;;
+
 esac

@@ -2,8 +2,8 @@
 
 for i in *;
 do
-    val=$(echo ${i} | sed 's/\ /-/')
-    mv "${i}" $val
+    val=$(echo $i | sed 's/\ /_/g')
+    mv "$i" "$val" -n -v
 done
 
 echo "done!"

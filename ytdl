@@ -1,0 +1,18 @@
+#!/bin/env bash
+
+save=$HOME/Videos/ytdl
+fmt=mp4
+
+temp=$HOME/.cache/ytdl
+mkdir -p $temp
+cd $temp 
+
+yt-dlp -N 6 -f 'bestvideo[height<=720]+bestaudio' \
+    --sub-langs 'en.*,jp' --embed-subs $1
+
+fin=$(ls *webm | sed "s/.webm/.$fmt/")
+ffmpeg -i *webm -c copy -c:s mov_text "$fin"
+#ffmpeg -i *webm -c copy "$fin" 
+ls * | grep -v ".$fmt" | xargs -I {} rm {} -rf
+mv -v * $save 
+rm $temp -rf
