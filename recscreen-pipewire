@@ -4,47 +4,88 @@
 ## Change as you want 
 
 # Save to this Directory
-RECDIR=~/Videos/Screenrecord
-
-# Audio offset in seconds
-DEOFFSET=1
+recdir=$HOME/Videos/Screenrecord
 
 # Frame Rate to record in (fps)
-FR=30
+framerate=30
 
 # Resolution of the Video
 resolution=1280x720
+
+# Device ID 
+deviceid=43
 
 ## No Touchy space from here 
 ## Daaaaaaaaaaate 
 whenrec=$(date +"%d-%m-%y_%H-%M")
 
 ## da magical command, does magick!
-## making a temp cache file 
-mkdir -p ~/.cache/recscreen
-TEMPDIR=~/.cache/recscreen
 
-pw-record $TEMPDIR/audio.wav & \
-ffmpeg \
-    -f x11grab -framerate $FR -i :0.0 \
-    -vcodec libx264 -crf 7 \
-    -vf scale=$resolution:flags=lanczos \
-    -preset ultrafast\
-    $TEMPDIR/video.mkv 
+record () {
+    ## making a temp cache file 
+    mkdir -p $HOME/.cache/recscreen
+    TEMPDIR=$HOME/.cache/recscreen
 
-ffmpeg \
-    -i $TEMPDIR/video.mkv -i $TEMPDIR/audio.wav \
-    -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 300k \
-    $RECDIR/$whenrec.mkv
+    pw-record --target $deviceid $TEMPDIR/audio.wav & \
+    ffmpeg \
+        -f x11grab -framerate $framerate -i :0.0 \
+        -vcodec libx264 -crf 7 \
+        -vf scale=$resolution\
+        -preset superfast \
+        $TEMPDIR/video.mkv 
+#:flags=lanczos 
+    ffmpeg \
+        -i $TEMPDIR/video.mkv -i $TEMPDIR/audio.wav \
+        -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 300k \
+        $recdir/$whenrec.mkv
+
+    rm -rf $TEMPDIR
+}
+
+help () {
+    echo "Recsreen by Kiriyama"
+    echo
+    echo "-h: show help menu"
+    echo "-o: specify output video directory"
+    echo "-f: specify the number of FPS"
+    echo 
+}
 
 
-## Adding the delay and Cleaning up....
-# ffmpeg \
-    # -i $TEMPDIR/temp.mp4 \
-    # -itsoffset $DEOFFSET \
-    # -i $TEMPDIR/temp.mp4 \
-    # # -vcodec copy -acodec copy \
-    # -map 0:0 -map 1:1 \
-    # $RECDIR/$whenrec.mp4
+main () {
 
-rm -rf $TEMPDIR
+	if [ ! -d ~/.cache/recscreen ] ; then
+		mkdir -p ~/.cache/recscreen
+	fi
+	
+	if [ ! -d ~/Videos/Screenrecord ] ; then
+		mkdir -p ~/Videos/Screenrecord
+	fi
+
+	while getopts ":ho:" options; do
+		case "${options}" in
+			h)
+				help
+				exit 0
+				;;
+			o)
+				recdir="${OPTARG}"
+				;;
+			f)
+				framerate="${OPTARG}"
+				;;
+			:)
+				echo "Error: -${OPTARG} requires an argument."
+				exit 1
+				;;
+			*)
+				echo "Error: Unknown option -${OPTARG}."
+				exit 1
+				;;
+		esac
+	done
+
+	record
+}
+
+main $@
